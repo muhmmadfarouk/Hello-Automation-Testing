@@ -4,8 +4,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
 #test data
-user= "admin"          #variable of username in login page
-password="admin"       #variable of password in login page
+user= "admin"          #the data username in login page
+password="admin"       #the data Password in login page
 un="admin"           #the data will used in create user (username)
 pwd="1234567"          #the data will used in create user (Password)
 mails="assdsa@sdadasdad.com"    #the data will used in create user (mail)
