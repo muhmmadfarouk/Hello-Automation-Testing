@@ -1,0 +1,10 @@
+from upload_page import Upload
+from upload_page import file_dict
+from upload_page import dirs
+import os
+import json
+
+
+correctpath= file_dict('/home/farouk/Desktop/example(copy).json')
+Upload(correctpath,"correct")
+
