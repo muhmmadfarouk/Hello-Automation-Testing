@@ -1,0 +1,66 @@
+# -----------------------------------------------------------
+# upload_page test Cases URL: https://linguistixtank-transcribe.com/#/upload
+# using os.listdir() +json File
+# Muhammad Farouk, RDI, Software Tester
+# E-mail: muhammadfarouk2394@gmail.com
+# -----------------------------------------------------------
+import os
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
+import json
+
+import logging
+
+
+
+#path = "/home/farouk/Videos/2waves"
+f=open('/home/farouk/Desktop/example.json', 'r')
+# Open a file
+file_dict = json.load(f)
+dirs = os.listdir(file_dict[0]['waves'])
+print (len(dirs))
+dev='\"fit-u\"'
+class Upload():
+    def __init__(self,path,status):
+        self.path=path
+        self.status=status
+        self.driver = webdriver.Chrome()  # create a new chrome session
+        self.driver.implicitly_wait(2)  # wait for 2 seconds
+        self.driver.maximize_window()  # maximize the window
+        self.driver.get("https://linguistixtank-transcribe.com/#/login")  # navigate to the website login page
+        logging.basicConfig(filename="test.log",level=logging.DEBUG,format="%(asctime)s:%(levelname)s:%(message)s")
+        logging.basicConfig(filename="test.log",level=logging.ERROR,format="%(asctime)s:%(levelname)s:%(message)s")
+        self.type_user = self.driver.find_element_by_xpath('//*[@id="mat-input-0"]')
+        self.type_user.send_keys(file_dict[0]['user'])
+        self.type_password = self.driver.find_element_by_xpath('//*[@id="password"]')
+        self.type_password.send_keys(file_dict[0]['password'])
+        self.type_password.send_keys(Keys.RETURN)
+    #    self.time.sleep(3)
+
+        for file_name in os.listdir(path):
+            self.find_browse = self.driver.find_element_by_xpath('//*[@id="myFile"]')
+            self.find_browse.send_keys(path+'/'+file_name)
+        #     #self.time.sleep(2)
+        time.sleep(8)
+       # self.print(count)
+        self.new_html = self.driver.page_source
+        self.count = self.new_html.count(dev)
+        print(self.count)
+        if self.count == 4:
+            logging.debug("uploading was succeeded")
+        else:
+            logging.error("uploading wasn't succeeded")
+
+        #self.driver.implicitly_wait(2)
+
+        self.finish = self.driver.find_element_by_xpath(
+            '/html/body/app-root/div/section/app-upload/div/div/div/div[3]/div/button')
+        self.finish.click()
+
+        # self.time.sleep(2)
+
+        # driver_logs = driver.get_log(“driver”);
+        self.driver.close()
+correct_file=Upload("/home/farouk/Videos/2waves",'correct')
+#false_file=Upload('/home/farouk/Videos/wavef'  ,'false')
