@@ -1,0 +1,147 @@
+# -----------------------------------------------------------
+# upload_page test Cases URL: https://linguistixtank-transcribe.com/#/upload
+# using os.listdir() +json File
+# Muhammad Farouk, RDI, Software Tester
+# E-mail: muhammadfarouk2394@gmail.com
+# -----------------------------------------------------------
+import os
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import json
+import xlsxwriter
+import datetime
+import logging
+
+class upload_Test():
+    def __init__(self,path,path_json,status):
+        self.path = path
+        self.status = status
+        self.f = open(path_json, 'r')         # Open a file
+        self.dev = '\"fit-u\"'
+        self.loop="Done"
+        logging.basicConfig(filename="test.log",level=logging.DEBUG,format="%(asctime)s:%(levelname)s:%(message)s")
+        logging.basicConfig(filename="test.log",level=logging.ERROR,format="%(asctime)s:%(levelname)s:%(message)s")
+        self.ID=0
+        # self.size=os.path.getsize(file_name)
+        # self.ext=os.path.splitext(file-name)
+        self.workbook = xlsxwriter.Workbook('Example6.xlsx')
+        self.worksheet = self.workbook.add_worksheet()
+        self.row=0
+        self.column=0
+        self.rows=0
+        self.columns=0
+        self.workbook2 = xlsxwriter.Workbook('Example5.xlsx')
+        self.worksheet2 = self.workbook2.add_worksheet()
+        self.row1 = 0
+        self.columna = 0
+        self.rows1=0
+        self.columnas=0
+        self.success= open("success.txt","w+")
+        self.fail=open("failed.txt","w+")
+        self.succeed_files=[]
+        self.failed_files=[]
+
+    def parser(self):
+        self.file_dict = json.load(self.f)
+        self.dirs = os.listdir(self.file_dict[0]['waves'])
+        #print(len(self.dirs))
+
+    def process(self):
+        self.driver = webdriver.Chrome()  # create a new chrome session
+        self.driver.implicitly_wait(2)  # wait for 2 seconds
+        self.driver.maximize_window()  # maximize the window
+        self.driver.get("http://192.168.1.207/#/login")  # navigate to the website login page
+
+        self.type_user = self.driver.find_element_by_xpath('//*[@id="mat-input-0"]')
+        self.type_user.send_keys(self.file_dict[0]['user'])
+        self.type_password = self.driver.find_element_by_xpath('//*[@id="password"]')
+        self.type_password.send_keys(self.file_dict[0]['password'])
+        self.type_password.send_keys(Keys.RETURN)
+
+
+        self.ID = 1
+        self.ID2=1
+        self.count=0
+        self.fit_u=0
+        self.div=0
+        self.done_count = 0
+
+        for file_name in os.listdir(self.path):
+            self.starttime = datetime.datetime.now()
+            self.find_browse = self.driver.find_element_by_xpath('//*[@id="myFile"]')
+            self.find_browse.send_keys(self.path+'/'+file_name)
+            self.timout=0
+
+            # Check if file has error or no
+            while(self.count==self.fit_u and self.timout<5):
+                    self.new_html = self.driver.page_source
+                    self.count = self.new_html.count(self.dev)
+                    self.timout = (datetime.datetime.now()- self.starttime).total_seconds()
+                    print("tim out",self.timout)
+
+            # if there is no error
+            if self.count == self.fit_u+1:
+                #print("div is:" + str(self.div))
+                while (self.div == self.done_count and self.timout<10):
+                    self.new_html = self.driver.page_source
+                    self.div = self.new_html.count(self.loop)
+                    self.end = datetime.datetime.now()
+                print("time=", self.end)
+                print("self.div=", self.div)
+                self.time = self.end-self.starttime
+                print(self.time)
+                self.succeed_files.append(file_name)
+                self.worksheet.write(self.row, self.column, 'ID')
+                self.worksheet.write(self.row, self.column+1, 'Wave Name')
+                self.worksheet.write(self.row, self.column+2, 'Wave Statue')
+                self.worksheet.write(self.row, self.column+3, 'Start Time')
+                self.worksheet.write(self.row, self.column+4, 'End Time')
+                self.worksheet.write(self.row, self.column+5, 'Time Out')
+                self.worksheet.write(self.row, self.column+6, 'Wave Size')
+                self.worksheet.write(self.row, self.column +7, 'Wave Extension')
+                self.worksheet.write(self.row, self.column+8, 'Wave Path')
+                self.worksheet.write(self.rows+1, self.columns, self.ID)
+                self.worksheet.write(self.rows+1, self.columns+1, (file_name))
+                self.worksheet.write(self.rows+1, self.columns+2, "passed")
+                self.worksheet.write(self.rows+1, self.columns+3, (self.starttime.strftime("%Y-%m-%d %H:%M:%S")))
+                self.worksheet.write(self.rows+1, self.column+4, (self.end.strftime("%Y-%m-%d %H:%M:%S")))
+                self.worksheet.write(self.rows+1, self.column+5, str((self.time.total_seconds()))+ " seconds")
+                self.worksheet.write(self.rows+1, self.column+6, str((os.path.getsize(self.path + '/' + file_name))/1000)+" kB")
+                self.worksheet.write(self.rows+1, self.column+7, file_name.split('.')[-1])
+                self.worksheet.write(self.rows+1, self.column+8, self.path + '/' + file_name)
+                self.rows+=1
+                self.ID += 11
+                self.fit_u += 1
+                self.done_count=1
+            # if there is error
+            else:
+                self.failed_files.append(file_name)
+                self.worksheet2.write(self.row1, self.columna, 'ID')
+                self.worksheet2.write(self.row1, self.columna+1, 'Wave Name')
+                self.worksheet2.write(self.row1, self.columna+2, 'Wave Statue')
+                self.worksheet2.write(self.row1, self.columna+3, 'Wave Size')
+                self.worksheet2.write(self.row1, self.columna +4, 'Wave Extension')
+                self.worksheet2.write(self.row1, self.columna+5, 'Wave Path')
+                self.worksheet2.write(self.rows1+1, self.columnas, self.ID2)
+                self.worksheet2.write(self.rows1+1, self.columnas+ 1, (file_name))
+                self.worksheet2.write(self.rows1+1, self.columnas+ 2, "failed")
+                self.worksheet2.write(self.rows1+1, self.columnas+3, str((os.path.getsize(self.path + '/' + file_name))/1000)+" kB")
+                self.worksheet2.write(self.rows1+1, self.columnas+4, file_name.split('.')[-1])
+                self.worksheet2.write(self.rows1+1, self.columnas+5, (self.path + '/' + file_name))
+                self.ID2 += 1
+                self.rows1 += 1  # incrementing the value of row by one, # with each iteratons.
+
+        self.workbook.close()
+        self.workbook2.close()
+        self.fail.write(','.join(self.failed_files))
+        self.success.write(','.join(self.succeed_files))
+        self.finish = self.driver.find_element_by_xpath( '/html/body/app-root/div/section/app-upload/div/div/div/div[3]/div/button')
+        self.finish.click()
+        self.driver.close()
+
+x=upload_Test("/home/farouk/Videos/wavef",'/home/farouk/Desktop/example(copy).json','correct')
+x.parser()
+x.process()
+# x.Logging()
+#false_file=Upload('/home/farouk/Videos/wavef'  ,'false')
+            
